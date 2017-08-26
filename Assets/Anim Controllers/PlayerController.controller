@@ -8,19 +8,13 @@ AnimatorController:
   m_Name: PlayerController
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: Blend
+  - m_Name: xSpeed
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
   - m_Name: zSpeed
-    m_Type: 1
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 0}
-  - m_Name: xSpeed
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -79,7 +73,7 @@ BlendTree:
     m_DirectBlendParameter: Blend
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: ff5d866446ffdf94493cb1a126bcaeb0, type: 3}
+    m_Motion: {fileID: 7400000, guid: 2d52f2cd64a56ff41a167e010c454f98, type: 3}
     m_Threshold: 0.36363637
     m_Position: {x: -2, y: 0}
     m_TimeScale: 1
@@ -87,7 +81,7 @@ BlendTree:
     m_DirectBlendParameter: Blend
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 2d52f2cd64a56ff41a167e010c454f98, type: 3}
+    m_Motion: {fileID: 7400000, guid: ff5d866446ffdf94493cb1a126bcaeb0, type: 3}
     m_Threshold: 0.45454547
     m_Position: {x: 2, y: 0}
     m_TimeScale: 1

@@ -112,6 +112,63 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &511571131
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 511571133}
+  - component: {fileID: 511571132}
+  m_Layer: 0
+  m_Name: InControlManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &511571132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 511571131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7b5e8de77c5b4597ae7fbfb49a95e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  logDebugInfo: 0
+  invertYAxis: 0
+  useFixedUpdate: 0
+  dontDestroyOnLoad: 1
+  suspendInBackground: 0
+  enableICade: 0
+  enableXInput: 0
+  xInputOverrideUpdateRate: 0
+  xInputUpdateRate: 0
+  xInputOverrideBufferSize: 0
+  xInputBufferSize: 0
+  enableNativeInput: 0
+  nativeInputEnableXInput: 1
+  nativeInputPreventSleep: 0
+  nativeInputOverrideUpdateRate: 0
+  nativeInputUpdateRate: 0
+  customProfiles: []
+--- !u!4 &511571133
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 511571131}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.26659444, y: 1.2569747, z: -5.254193}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &710515039
 Prefab:
   m_ObjectHideFlags: 0
@@ -149,7 +206,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4884868442299490, guid: c4821c4ce174a9f4e921d5cd9ad320ee, type: 2}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 136995138788883092, guid: c4821c4ce174a9f4e921d5cd9ad320ee,
         type: 2}
@@ -159,6 +216,31 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c4821c4ce174a9f4e921d5cd9ad320ee, type: 2}
   m_IsPrefabParent: 0
+--- !u!1 &1122509749 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1014858251168960, guid: c4821c4ce174a9f4e921d5cd9ad320ee,
+    type: 2}
+  m_PrefabInternal: {fileID: 710515039}
+--- !u!4 &1122509753 stripped
+Transform:
+  m_PrefabParentObject: {fileID: 4884868442299490, guid: c4821c4ce174a9f4e921d5cd9ad320ee,
+    type: 2}
+  m_PrefabInternal: {fileID: 710515039}
+--- !u!114 &1122509754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1122509749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 513cdc82f7ef0a24fbe31d13ff5d6d85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RUN_SPEED: 2
+  SPRINT_SPEED: 3
+  SPRINT_TAP_DELAY: 0.5
+  accel: 12
 --- !u!1 &1228026638
 GameObject:
   m_ObjectHideFlags: 0
@@ -243,7 +325,7 @@ Transform:
   m_LocalScale: {x: 2.1424713, y: 2.1424708, z: 2.1424708}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1548560413
 GameObject:
@@ -320,13 +402,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1548560413}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.08451984, y: -0, z: -0, w: 0.9964218}
+  m_LocalPosition: {x: 0, y: 1.821, z: -2.429}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Father: {fileID: 1122509753}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 9.6970005, y: 0, z: 0}
 --- !u!1 &2146045487
 GameObject:
   m_ObjectHideFlags: 0
@@ -390,5 +472,5 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
