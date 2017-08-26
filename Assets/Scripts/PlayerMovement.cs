@@ -28,6 +28,7 @@ public class PlayerMovement : MonoBehaviour {
 	bool isCheckingForSprint = false;
 	bool isSprinting = false;
 	bool isMoving = false;
+	bool isCrouching = false;
 
 	// Use this for initialization
 	void Start () {
@@ -85,6 +86,14 @@ public class PlayerMovement : MonoBehaviour {
 		}
 		#endregion
 
+		if (Input.GetKeyDown (KeyCode.LeftShift) && !isMoving) {
+			isCrouching = true;
+		}
+
+		if (Input.GetKeyUp (KeyCode.LeftShift) && isCrouching) {
+			isCrouching = false;
+		}
+
 		//Determine Direction
 		Vector3 direction = ((cam.transform.forward * zSpeed).normalized + (cam.transform.right * xSpeed).normalized).normalized;
 		direction.y = 0f;
@@ -92,7 +101,9 @@ public class PlayerMovement : MonoBehaviour {
 		//Determine Speed
 		float Speed;
 		isMoving = Mathf.Abs (xSpeed) >= 1f || Mathf.Abs (zSpeed) >= 1f;
-		isSprinting = CheckForSprint ();
+		if(!isCrouching)
+			isSprinting = CheckForSprint ();
+		
 		if (isMoving)
 			Speed = isSprinting ? SPRINT_SPEED : RUN_SPEED;
 		else
@@ -104,6 +115,7 @@ public class PlayerMovement : MonoBehaviour {
 		//Set Animation Parameters
 		SetAnimationParameters ();
 		transform.RotateAround (transform.position, Vector3.up, Input.GetAxis ("Mouse X"));
+		cam.transform.RotateAround (transform.position + cam.transform.localPosition.y * Vector3.up, cam.transform.right, -Input.GetAxis ("Mouse Y"));
 
 		//Move this somewhere else
 		if (Input.GetKeyDown (KeyCode.Escape))
@@ -113,9 +125,10 @@ public class PlayerMovement : MonoBehaviour {
 
 	void SetAnimationParameters()
 	{
-		float zSpeedCap = isSprinting ? 3f : 2f;
+		float zSpeedCap = isSprinting && !isCrouching ? 3f : 2f;
 		anim.SetFloat ("zSpeed", Mathf.Clamp(zSpeed, -2, zSpeedCap));
 		anim.SetFloat ("xSpeed", Mathf.Clamp(xSpeed, -2, 2));
+		anim.SetBool ("Crouching", isCrouching);
 	}
 
 	bool CheckForSprint()
