@@ -5,16 +5,23 @@ using InControl;
 
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(CapsuleCollider))]
 public class PlayerMovement : MonoBehaviour {
 	//Constants
-	public float RUN_SPEED = 8f;
-	public float SPRINT_SPEED = 12f;
+	public float RUN_SPEED;
+	public float SPRINT_SPEED;
+	public float CROUCH_SPEED;
 	public float SPRINT_TAP_DELAY = 0.5f;
+	public float JUMP_HEIGHT;
+
+	//Layermasks
+	LayerMask terrainonly = 1 << Layermasks.TERRAIN;
 
 	//Components
 	Animator anim;
 	Rigidbody rigidBody;
 	Camera cam;
+	CapsuleCollider coll;
 
 	//Animation Parameters
 	float zSpeed;
@@ -29,11 +36,19 @@ public class PlayerMovement : MonoBehaviour {
 	bool isSprinting = false;
 	bool isMoving = false;
 	bool isCrouching = false;
+	bool isGrounded = true;
+	bool isLanding = false;
+
+	//Animation States
+	AnimatorStateInfo currentBaseState;
+	int fallingState = Animator.StringToHash("Base Layer.Falling");
+
 
 	// Use this for initialization
 	void Start () {
 		anim = GetComponent<Animator> ();
 		rigidBody = GetComponent<Rigidbody> ();
+		coll = GetComponent<CapsuleCollider> ();
 		cam = Camera.main;
 
 		Cursor.lockState = CursorLockMode.Locked;
@@ -42,7 +57,16 @@ public class PlayerMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+		currentBaseState = anim.GetCurrentAnimatorStateInfo (0);
+		#region Crouching
+		if (Input.GetKeyDown (KeyCode.LeftShift) && !isMoving) {
+			isCrouching = true;
+		}
+
+		if (Input.GetKeyUp (KeyCode.LeftShift) && isCrouching) {
+			isCrouching = false;
+		}
+		#endregion
 
 		#region ZMovement
 		bool fwHeld = Input.GetKey (KeyCode.W);
@@ -86,13 +110,8 @@ public class PlayerMovement : MonoBehaviour {
 		}
 		#endregion
 
-		if (Input.GetKeyDown (KeyCode.LeftShift) && !isMoving) {
-			isCrouching = true;
-		}
-
-		if (Input.GetKeyUp (KeyCode.LeftShift) && isCrouching) {
-			isCrouching = false;
-		}
+		//Collider
+		coll = DoColliderChanges();
 
 		//Determine Direction
 		Vector3 direction = ((cam.transform.forward * zSpeed).normalized + (cam.transform.right * xSpeed).normalized).normalized;
@@ -101,16 +120,43 @@ public class PlayerMovement : MonoBehaviour {
 		//Determine Speed
 		float Speed;
 		isMoving = Mathf.Abs (xSpeed) >= 1f || Mathf.Abs (zSpeed) >= 1f;
+
+		isGrounded = IsGrounded ();
+
+		//Only check for landing if falling
+		if (!isGrounded && rigidBody.velocity.y < 0)
+			isLanding = IsLanding ();
+
+		if (Input.GetKeyUp (KeyCode.Space))
+			anim.ResetTrigger ("Jump");
+
 		if(!isCrouching)
 			isSprinting = CheckForSprint ();
 		
-		if (isMoving)
-			Speed = isSprinting ? SPRINT_SPEED : RUN_SPEED;
+		if (isMoving) {
+			if (isSprinting)
+				Speed = SPRINT_SPEED;
+			else if (isCrouching)
+				Speed = CROUCH_SPEED;
+			else
+				Speed = RUN_SPEED;
+		}
 		else
 			Speed = 0;
 
+		if (Input.GetKeyDown (KeyCode.Space)) {
+			anim.SetTrigger ("Jump");
+			if (isGrounded) {
+				isLanding = false;
+				rigidBody.AddForce (transform.up * JUMP_HEIGHT, ForceMode.Impulse);
+			}
+		}
+		
 		//Set Velocity
-		rigidBody.velocity = direction * Speed;
+		Vector3 velocity = direction * Speed;
+		velocity.y = rigidBody.velocity.y;
+		if(isGrounded)
+			rigidBody.velocity = velocity;
 
 		//Set Animation Parameters
 		SetAnimationParameters ();
@@ -129,6 +175,8 @@ public class PlayerMovement : MonoBehaviour {
 		anim.SetFloat ("zSpeed", Mathf.Clamp(zSpeed, -2, zSpeedCap));
 		anim.SetFloat ("xSpeed", Mathf.Clamp(xSpeed, -2, 2));
 		anim.SetBool ("Crouching", isCrouching);
+		anim.SetBool ("Grounded", isGrounded);
+		anim.SetBool ("Landing", isLanding);
 	}
 
 	bool CheckForSprint()
@@ -156,5 +204,28 @@ public class PlayerMovement : MonoBehaviour {
 
 		return isSprinting;
 
+	}
+
+	CapsuleCollider DoColliderChanges()
+	{
+		CapsuleCollider newCol = coll;
+		if (currentBaseState.fullPathHash == fallingState) {
+			newCol.height = 1f;
+			newCol.center = Vector3.up * 0.5f;
+		} else {
+			newCol.height = 1.8f;
+			newCol.center = Vector3.up * 0.9f;
+		}
+		return newCol;
+	}
+
+	bool IsGrounded()
+	{
+		return Physics.Raycast (transform.position + coll.center.y * Vector3.up, -Vector3.up, coll.height / 2f + 0.1f, terrainonly, QueryTriggerInteraction.Ignore);
+	}
+
+	bool IsLanding()
+	{
+		return Physics.Raycast (transform.position, -Vector3.up, 1f, terrainonly, QueryTriggerInteraction.Ignore);
 	}
 }
