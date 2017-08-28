@@ -32,6 +32,7 @@ public class PlayerMovement : MonoBehaviour {
 	float tapDelay = 0f;
 	float mass;
 	Direction moveDirection = Direction.None;
+	PlayerActions playerActions;
 
 	//Status Booleans
 	bool isCheckingForSprint = false;
@@ -45,6 +46,16 @@ public class PlayerMovement : MonoBehaviour {
 	//Animation States
 	AnimatorStateInfo currentBaseState;
 	int fallingState = Animator.StringToHash("Base Layer.Falling");
+
+	void OnEnable()
+	{
+		playerActions = PlayerActions.CreateWithDefaultBindings ();
+	}
+
+	void OnDisable()
+	{
+		playerActions.Destroy();
+	}
 
 	enum Direction
 	{
@@ -61,6 +72,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
 		anim = GetComponent<Animator> ();
 		rigidBody = GetComponent<Rigidbody> ();
 		mass = rigidBody.mass;
@@ -73,13 +85,14 @@ public class PlayerMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
 		currentBaseState = anim.GetCurrentAnimatorStateInfo (0);
 		#region Crouching
-		if ((Input.GetKeyDown (KeyCode.LeftShift) && !isMoving) || Input.GetKey(KeyCode.LeftShift) && isDodging) {
+		if ((playerActions.Crouch.WasPressed && !isMoving) || playerActions.Crouch.IsPressed && isDodging) {
 			isCrouching = true;
 		}
 
-		if (Input.GetKeyUp (KeyCode.LeftShift) && isCrouching) {
+		if (playerActions.Crouch.WasReleased && isCrouching) {
 			isCrouching = false;
 		}
 		#endregion
@@ -129,7 +142,6 @@ public class PlayerMovement : MonoBehaviour {
 		//Collider
 		coll = DoColliderChanges();
 
-
 		//Determine Direction
 		Vector3 direction = ((cam.transform.forward * zSpeed).normalized + (cam.transform.right * xSpeed).normalized).normalized;
 		direction.y = 0f;
@@ -161,17 +173,17 @@ public class PlayerMovement : MonoBehaviour {
 		else
 			Speed = 0;
 
-		if (Input.GetKeyDown (KeyCode.Space)) {
+		if (playerActions.Jump.WasPressed) {
 			anim.SetTrigger ("Jump");
 			if (isGrounded) {
 				isLanding = false;
 				rigidBody.AddForce (transform.up * JUMP_HEIGHT * mass, ForceMode.Impulse);
 			}
 		}
-		else if (Input.GetKeyUp (KeyCode.Space))
+		else if (playerActions.Jump.WasReleased)
 			anim.ResetTrigger ("Jump");
 
-		if (Input.GetKeyDown (KeyCode.LeftShift)) {
+		if (playerActions.Crouch.WasPressed) {
 			anim.SetTrigger ("Dodge");
 		}
 		
@@ -206,9 +218,9 @@ public class PlayerMovement : MonoBehaviour {
 	bool CheckForSprint()
 	{
 
-		if (Input.GetKeyUp (KeyCode.W) && isSprinting)
+		if (playerActions.Forward.WasReleased && isSprinting)
 			return false;
-
+		
 		if (tapDelay > 0f && isCheckingForSprint) {
 			if (Input.GetKeyDown (KeyCode.W)) {
 				isCheckingForSprint = false;
@@ -221,11 +233,11 @@ public class PlayerMovement : MonoBehaviour {
 			
 
 		//Check Sprinting
-		if (Input.GetKeyDown (KeyCode.W) && !isCheckingForSprint) {
+		if (playerActions.Forward.WasPressed && !isCheckingForSprint) {
 			isCheckingForSprint = true;
 			tapDelay = SPRINT_TAP_DELAY;
 		}
-
+			
 		return isSprinting;
 
 	}
@@ -245,10 +257,10 @@ public class PlayerMovement : MonoBehaviour {
 
 	Direction GetKeyDirection()
 	{
-		bool keyW = Input.GetKey (KeyCode.W);
-		bool keyA = Input.GetKey (KeyCode.A);
-		bool keyS = Input.GetKey (KeyCode.S);
-		bool keyD = Input.GetKey (KeyCode.D);
+		bool keyW = playerActions.Forward.WasPressed;
+		bool keyA = playerActions.Left.WasPressed;
+		bool keyS = playerActions.Back.WasPressed;
+		bool keyD = playerActions.Right.WasPressed;
 
 		if (keyW) {
 			if (keyD)
