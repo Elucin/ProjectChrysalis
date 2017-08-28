@@ -92,8 +92,10 @@ public class PlayerMovement : MonoBehaviour {
 			isCrouching = true;
 		}
 
-		if (playerActions.Crouch.WasReleased && isCrouching) {
-			isCrouching = false;
+		if (playerActions.Crouch.WasReleased ) {
+			anim.ResetTrigger("Dodge");
+			if(isCrouching)
+				isCrouching = false;
 		}
 		#endregion
 
@@ -183,7 +185,7 @@ public class PlayerMovement : MonoBehaviour {
 		else if (playerActions.Jump.WasReleased)
 			anim.ResetTrigger ("Jump");
 
-		if (playerActions.Crouch.WasPressed) {
+		if (playerActions.Crouch.WasPressed && moveDirection != Direction.None) {
 			anim.SetTrigger ("Dodge");
 		}
 		
@@ -257,10 +259,10 @@ public class PlayerMovement : MonoBehaviour {
 
 	Direction GetKeyDirection()
 	{
-		bool keyW = playerActions.Forward.WasPressed;
-		bool keyA = playerActions.Left.WasPressed;
-		bool keyS = playerActions.Back.WasPressed;
-		bool keyD = playerActions.Right.WasPressed;
+		bool keyW = playerActions.Forward.IsPressed;
+		bool keyA = playerActions.Left.IsPressed;
+		bool keyS = playerActions.Back.IsPressed;
+		bool keyD = playerActions.Right.IsPressed;
 
 		if (keyW) {
 			if (keyD)
