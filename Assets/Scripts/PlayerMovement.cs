@@ -31,6 +31,7 @@ public class PlayerMovement : MonoBehaviour {
 	public float accel;
 	float tapDelay = 0f;
 	float mass;
+	Direction moveDirection = Direction.None;
 
 	//Status Booleans
 	bool isCheckingForSprint = false;
@@ -45,7 +46,18 @@ public class PlayerMovement : MonoBehaviour {
 	AnimatorStateInfo currentBaseState;
 	int fallingState = Animator.StringToHash("Base Layer.Falling");
 
-
+	enum Direction
+	{
+		None,
+		Forward,
+		ForwardRight,
+		Right,
+		BackRight,
+		Back,
+		BackLeft,
+		Left,
+		ForwardLeft
+	};
 
 	// Use this for initialization
 	void Start () {
@@ -63,7 +75,7 @@ public class PlayerMovement : MonoBehaviour {
 	void Update () {
 		currentBaseState = anim.GetCurrentAnimatorStateInfo (0);
 		#region Crouching
-		if (Input.GetKeyDown (KeyCode.LeftShift) && !isMoving) {
+		if ((Input.GetKeyDown (KeyCode.LeftShift) && !isMoving) || Input.GetKey(KeyCode.LeftShift) && isDodging) {
 			isCrouching = true;
 		}
 
@@ -117,14 +129,16 @@ public class PlayerMovement : MonoBehaviour {
 		//Collider
 		coll = DoColliderChanges();
 
+
 		//Determine Direction
 		Vector3 direction = ((cam.transform.forward * zSpeed).normalized + (cam.transform.right * xSpeed).normalized).normalized;
 		direction.y = 0f;
+		moveDirection = GetKeyDirection ();
 
 		//Determine Speed
 		float Speed;
 		isMoving = Mathf.Abs (xSpeed) >= 1f || Mathf.Abs (zSpeed) >= 1f;
-
+		isDodging = IsDodging ();
 		isGrounded = IsGrounded ();
 
 		//Only check for landing if falling. Landing is used to trigger animation transition early
@@ -157,7 +171,7 @@ public class PlayerMovement : MonoBehaviour {
 		else if (Input.GetKeyUp (KeyCode.Space))
 			anim.ResetTrigger ("Jump");
 
-		if (Input.GetKeyDown (KeyCode.LeftShift) && isMoving) {
+		if (Input.GetKeyDown (KeyCode.LeftShift)) {
 			anim.SetTrigger ("Dodge");
 		}
 		
@@ -186,6 +200,7 @@ public class PlayerMovement : MonoBehaviour {
 		anim.SetBool ("Crouching", isCrouching);
 		anim.SetBool ("Grounded", isGrounded);
 		anim.SetBool ("Landing", isLanding);
+		anim.SetInteger ("Direction", (int)moveDirection);
 	}
 
 	bool CheckForSprint()
@@ -226,6 +241,40 @@ public class PlayerMovement : MonoBehaviour {
 			newCol.center = Vector3.up * 0.9f;
 		}
 		return newCol;
+	}
+
+	Direction GetKeyDirection()
+	{
+		bool keyW = Input.GetKey (KeyCode.W);
+		bool keyA = Input.GetKey (KeyCode.A);
+		bool keyS = Input.GetKey (KeyCode.S);
+		bool keyD = Input.GetKey (KeyCode.D);
+
+		if (keyW) {
+			if (keyD)
+				return Direction.ForwardRight;
+			else if (keyA)
+				return Direction.ForwardLeft;
+			else
+				return Direction.Forward;
+		} else if (keyS) {
+			if (keyD)
+				return Direction.BackRight;
+			else if (keyA)
+				return Direction.BackLeft;
+			else
+				return Direction.Back;
+		} else if (keyD)
+			return Direction.Right;
+		else if (keyA)
+			return Direction.Left;
+		else
+			return Direction.None;
+	}
+		
+	bool IsDodging()
+	{
+		return currentBaseState.IsTag ("Dodge");
 	}
 
 	bool IsGrounded()
