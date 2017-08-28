@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour {
 	public float RUN_SPEED;
 	public float SPRINT_SPEED;
 	public float CROUCH_SPEED;
-	public float SPRINT_TAP_DELAY = 0.5f;
+	public float SPRINT_TAP_DELAY;
 	public float JUMP_HEIGHT;
 
 	//Layermasks
@@ -28,8 +28,9 @@ public class PlayerMovement : MonoBehaviour {
 	float xSpeed;
 
 	//Other
-	public float accel = 8f;
+	public float accel;
 	float tapDelay = 0f;
+	float mass;
 
 	//Status Booleans
 	bool isCheckingForSprint = false;
@@ -38,16 +39,19 @@ public class PlayerMovement : MonoBehaviour {
 	bool isCrouching = false;
 	bool isGrounded = true;
 	bool isLanding = false;
+	bool isDodging = false;
 
 	//Animation States
 	AnimatorStateInfo currentBaseState;
 	int fallingState = Animator.StringToHash("Base Layer.Falling");
 
 
+
 	// Use this for initialization
 	void Start () {
 		anim = GetComponent<Animator> ();
 		rigidBody = GetComponent<Rigidbody> ();
+		mass = rigidBody.mass;
 		coll = GetComponent<CapsuleCollider> ();
 		cam = Camera.main;
 
@@ -123,14 +127,13 @@ public class PlayerMovement : MonoBehaviour {
 
 		isGrounded = IsGrounded ();
 
-		//Only check for landing if falling
+		//Only check for landing if falling. Landing is used to trigger animation transition early
 		if (!isGrounded && rigidBody.velocity.y < 0)
 			isLanding = IsLanding ();
 
-		if (Input.GetKeyUp (KeyCode.Space))
-			anim.ResetTrigger ("Jump");
 
-		if(!isCrouching)
+
+		if(!isCrouching && isGrounded)
 			isSprinting = CheckForSprint ();
 		
 		if (isMoving) {
@@ -148,8 +151,14 @@ public class PlayerMovement : MonoBehaviour {
 			anim.SetTrigger ("Jump");
 			if (isGrounded) {
 				isLanding = false;
-				rigidBody.AddForce (transform.up * JUMP_HEIGHT, ForceMode.Impulse);
+				rigidBody.AddForce (transform.up * JUMP_HEIGHT * mass, ForceMode.Impulse);
 			}
+		}
+		else if (Input.GetKeyUp (KeyCode.Space))
+			anim.ResetTrigger ("Jump");
+
+		if (Input.GetKeyDown (KeyCode.LeftShift) && isMoving) {
+			anim.SetTrigger ("Dodge");
 		}
 		
 		//Set Velocity
